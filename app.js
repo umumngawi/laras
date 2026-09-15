@@ -25,6 +25,23 @@ let renderPending=false;
 // ── SESSION KEY ──
 const SESSION_KEY = 'lr_session';
 
+// ── DARK MODE ──
+function initTheme() {
+  const saved = localStorage.getItem('lr_theme');
+  applyDark(saved === 'dark');
+}
+function applyDark(on) {
+  document.body.classList.toggle('dark', on);
+  ['btn-theme-vo','btn-theme-app'].forEach(id => {
+    const el = G(id); if (el) el.textContent = on ? '☀️' : '🌙';
+  });
+}
+function toggleTheme() {
+  const isDark = document.body.classList.contains('dark');
+  applyDark(!isDark);
+  localStorage.setItem('lr_theme', isDark ? 'light' : 'dark');
+}
+
 // ── UTILS ──
 const G    = id => document.getElementById(id);
 const toDS = d  => `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
@@ -62,8 +79,6 @@ function upcoming(e) {
 }
 
 // ── UTILS: normalisasi nama untuk matching ──
-// Hapus spasi berlebih, titik ganda, uppercase semua
-// supaya "SUYANTO, S.H., M.M" == "SUYANTO, S.H.,M.M"
 function normName(n) {
   return (n||'').toUpperCase().replace(/\s+/g,' ').replace(/\.\s*/g,'.').trim();
 }
@@ -172,11 +187,10 @@ async function doLogin() {
   const res = await gas({ action:'login', username:user, password:pass });
   btn.textContent='Masuk'; btn.disabled=false;
   if (res.success) {
-    curUser=res.nama; curRole=res.role||'viewonly'; curBag=res.bagian||''; curNama=res.nama||'';
+    // ── REVISI: normalisasi role saat login ──
+    curUser=res.nama; curRole=(res.role||'viewonly').trim().toLowerCase(); curBag=res.bagian||''; curNama=res.nama||'';
     const sessData = JSON.stringify({ nama:curUser, role:curRole, bagian:curBag, nama_lengkap:curNama });
-    // Simpan ke localStorage
     try { localStorage.setItem(SESSION_KEY, sessData); } catch(e) {}
-    // Backup ke cookie (30 hari) — lebih persisten di PWA Android
     try {
       const exp = new Date(Date.now()+30*24*60*60*1000).toUTCString();
       document.cookie=`${SESSION_KEY}=${encodeURIComponent(sessData)};expires=${exp};path=/;SameSite=Lax`;
@@ -191,20 +205,18 @@ async function doLogin() {
 }
 
 function applyRole() {
+  // ── REVISI: normalisasi role, hilangkan badge untuk staff ──
+  const roleNorm = (curRole||'').trim().toLowerCase();
   const lbl = { owner:'Owner', admin:'Admin', viewonly:'View Only' };
-  // Staff tidak tampil badge role — cukup nama saja
-  const badge = (curRole==='staff'||!lbl[curRole])
-    ? '' : `&nbsp;<span class="role-badge ${curRole}">${lbl[curRole]}</span>`;
+  const badge = (roleNorm==='staff'||!lbl[roleNorm])
+    ? '' : `&nbsp;<span class="role-badge ${roleNorm}">${lbl[roleNorm]}</span>`;
   G('user-welcome').innerHTML=`${esc(curUser)}${badge}`;
-  // owner & admin bisa tambah/edit agenda
-  if (curRole==='owner'||curRole==='admin') {
+  if (roleNorm==='owner'||roleNorm==='admin') {
     G('btn-add').classList.remove('hidden');
     G('dtl-edit').classList.remove('hidden');
   }
-  // notif hanya owner & admin
-  if (curRole==='owner'||curRole==='admin') G('btn-notif').style.display='flex';
-  // staff & viewonly: sembunyikan tab settings
-  if (curRole==='staff'||curRole==='viewonly') {
+  if (roleNorm==='owner'||roleNorm==='admin') G('btn-notif').style.display='flex';
+  if (roleNorm==='staff'||roleNorm==='viewonly') {
     const stgTab = G('t-stg'); if (stgTab) stgTab.style.display='none';
   }
 }
@@ -216,7 +228,6 @@ function doLogout() {
     localStorage.removeItem('lr_su');
     localStorage.removeItem('lr_sb');
   } catch(e) {}
-  // Hapus cookie session juga
   try {
     document.cookie=`${SESSION_KEY}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;SameSite=Lax`;
   } catch(e) {}
@@ -224,7 +235,6 @@ function doLogout() {
   G('btn-add').classList.add('hidden');
   G('dtl-edit').classList.add('hidden');
   G('btn-notif').style.display='none';
-  // Tampilkan kembali tab settings kalau sebelumnya disembunyikan
   const stgTab = G('t-stg'); if (stgTab) stgTab.style.display='';
   mode='viewonly'; tab='nama'; filt=null;
   G('vo').style.display='flex';
@@ -237,22 +247,21 @@ function doLogout() {
 async function initVO() {
   const n=new Date(); calY=n.getFullYear(); calM=n.getMonth();
 
-  // Cek session tersimpan — coba localStorage dulu, fallback ke cookie
   try {
     let saved = localStorage.getItem(SESSION_KEY);
-    // Kalau localStorage kosong, coba baca dari cookie (fallback PWA)
     if (!saved) {
       const match = document.cookie.split(';').map(c=>c.trim())
         .find(c=>c.startsWith(SESSION_KEY+'='));
       if (match) {
         saved = decodeURIComponent(match.split('=').slice(1).join('='));
-        // Restore ke localStorage sekalian
         try { localStorage.setItem(SESSION_KEY, saved); } catch(e) {}
       }
     }
     if (saved) {
       const sess = JSON.parse(saved);
-      curUser=sess.nama||''; curRole=sess.role||'viewonly';
+      curUser=sess.nama||'';
+      // ── REVISI: normalisasi role saat restore session ──
+      curRole=(sess.role||'viewonly').trim().toLowerCase();
       curBag=sess.bagian||''; curNama=sess.nama_lengkap||sess.nama||'';
       G('login').style.display='none'; G('vo').style.display='none'; G('app').style.display='flex';
       mode='loggedin'; tab='nama';
@@ -262,7 +271,6 @@ async function initVO() {
     }
   } catch(e) {}
 
-  // Tidak ada session → tampil view-only seperti biasa
   mode='viewonly';
   G('login').style.display='none'; G('vo').style.display='flex'; G('app').style.display='none';
   try { const c=localStorage.getItem('lr_ev'); if(c) events=JSON.parse(c); } catch(e) {}
@@ -283,7 +291,6 @@ async function initApp() {
   } catch(e) {}
   if (events.length||stafU.length) { render(); toast('Menyinkronkan data...'); }
   else showLdr('Mengambil data...');
-  // Staff hanya butuh events, tidak perlu data staf/bagian
   const bags = curRole==='owner' ? BAGS : (curBag?[curBag]:[]);
   const requests = [gas({ action:'getEvents' })];
   if (curRole!=='staff') {
@@ -327,7 +334,6 @@ function getFiltered(forCal) {
   const q=getQ();
   return events.filter(e=>{
     if (!forCal && !upcoming(e)) return false;
-    // Role staff: hanya tampilkan agenda milik dia sendiri
     if (curRole==='staff' && curNama) {
       const names = e.name.split(SEP).map(x=>normName(x));
       if (!names.includes(normName(curNama))) return false;
@@ -354,16 +360,15 @@ function render() {
 function renderNama(el) {
   const f=getFiltered(false);
   const nameSet=new Set();
-  events.filter(upcoming).forEach(e=>{
-    e.name.split(SEP).map(x=>x.trim()).forEach(n=>{
-      // Role staff: hanya tampilkan chip nama sendiri
-      if (curRole==='staff' && curNama) {
-        if (normName(n)===normName(curNama)) nameSet.add(n);
-      } else {
-        nameSet.add(n);
-      }
+
+  // ── REVISI: untuk staff, nameSet cukup isi nama sendiri saja ──
+  if (curRole==='staff' && curNama) {
+    nameSet.add(curNama);
+  } else {
+    events.filter(upcoming).forEach(e=>{
+      e.name.split(SEP).map(x=>x.trim()).forEach(n=>nameSet.add(n));
     });
-  });
+  }
 
   let html=`<div class="mob-srch"><input type="text" id="mob-s" placeholder="🔍  Cari agenda..." oninput="debouncedRender()"></div>`;
   html+=`<div class="fbar"><span class="fbar-lbl">Filter</span>`;
@@ -750,32 +755,29 @@ document.addEventListener('DOMContentLoaded',()=>{
     if (tab==='kalender') resizeTimer=setTimeout(()=>render(),200);
   });
 
-  // Register Service Worker (PWA) + Auto Update
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').then(reg => {
-
-      // Cek update setiap kali app dibuka
       reg.update();
-
-      // Kalau ada service worker baru menunggu, langsung aktifkan
       reg.addEventListener('updatefound', () => {
         const newSW = reg.installing;
         newSW.addEventListener('statechange', () => {
           if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-            // Ada versi baru — kirim pesan ke SW lama untuk skip waiting
             newSW.postMessage('skipWaiting');
           }
         });
       });
-
     }).catch(err => console.warn('SW registration failed:', err));
 
-    // Reload halaman saat SW baru sudah aktif (dapat versi terbaru)
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (!refreshing) { refreshing = true; window.location.reload(); }
     });
   }
+
+  initTheme();
+  ['btn-theme-vo','btn-theme-app'].forEach(id => {
+    const el = G(id); if (el) el.onclick = toggleTheme;
+  });
 
   initVO();
 });

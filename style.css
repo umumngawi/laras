@@ -69,6 +69,17 @@ body.dark .modal-hdr h3{color:var(--text)}
 body.dark .form-row label{color:var(--text-soft)}
 body.dark .stg-sec-title{color:var(--text-soft)}
 body.dark .stg-bag-title{color:var(--text-mid)}
+/* ── DARK MODE: detail popup ── */
+body.dark .dtl-box{background:var(--warm-white)}
+body.dark .dtl-name{color:var(--text) !important}
+body.dark .dtl-staf{color:var(--sage-dark) !important}
+body.dark .dtl-lbl{color:var(--text-soft) !important}
+body.dark .dtl-val{color:var(--text) !important}
+body.dark .dtl-cat{color:var(--text-mid) !important}
+body.dark .dtl-close{background:var(--cream);color:var(--text-mid) !important;border-color:var(--border)}
+body.dark .dtl-att{background:var(--cream);color:var(--text)}
+body.dark .dtl-att-name{color:var(--text)}
+body.dark .dtl-att-sz{color:var(--text-soft)}
 .ldr.on{display:flex}
 .ldr-spin{width:36px;height:36px;border:3px solid var(--rose-dim);
   border-top-color:var(--rose);border-radius:50%;

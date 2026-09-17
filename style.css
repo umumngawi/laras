@@ -48,6 +48,27 @@ body{
 .ldr{position:fixed;inset:0;background:rgba(250,246,241,.93);display:none;
   align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:9999}
 body.dark .ldr{background:rgba(26,20,16,.93)}
+/* ── DARK MODE: kontras teks ── */
+body.dark .empty-t{color:var(--text)}
+body.dark .empty-s{color:var(--text-mid)}
+body.dark .g-hdr-name{color:var(--text)}
+body.dark .note-title{color:var(--text)}
+body.dark .note-date{color:var(--text-mid)}
+body.dark .note-body{color:var(--text-mid)}
+body.dark .staf-nm{color:var(--text)}
+body.dark .staf-jbt{color:var(--text-mid)}
+body.dark .dtl-name{color:var(--text)}
+body.dark .dtl-val{color:var(--text)}
+body.dark .cal-hdr h2{color:var(--text)}
+body.dark .cal-dnum{color:var(--text-soft)}
+body.dark .fbar-lbl{color:var(--text-soft)}
+body.dark .chip{color:var(--text-mid)}
+body.dark .tb-name{color:var(--rose)}
+body.dark .login-brand{color:var(--rose)}
+body.dark .modal-hdr h3{color:var(--text)}
+body.dark .form-row label{color:var(--text-soft)}
+body.dark .stg-sec-title{color:var(--text-soft)}
+body.dark .stg-bag-title{color:var(--text-mid)}
 .ldr.on{display:flex}
 .ldr-spin{width:36px;height:36px;border:3px solid var(--rose-dim);
   border-top-color:var(--rose);border-radius:50%;
@@ -440,7 +461,7 @@ body.dark .note-kh.mewakili{background:rgba(107,63,160,.20);color:#c09aee}
 
 /* ── EMPTY ── */
 .empty{text-align:center;padding:4rem 1rem;color:var(--text-soft)}
-.empty-ico{font-size:36px;margin-bottom:14px;opacity:.4}
+.empty-ico{display:none}
 .empty-t{font-family:'Cormorant Garamond',serif;font-size:var(--fs-xl);
   font-weight:600;font-style:italic;color:var(--text-mid);margin-bottom:8px}
 .empty-s{font-size:var(--fs-sm)}

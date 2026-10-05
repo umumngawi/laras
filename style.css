@@ -163,11 +163,38 @@ body.dark .kh-badge.mewakili{background:rgba(107,63,160,.20);color:#c09aee}
   padding:3px 9px;border-radius:5px;background:var(--rose);color:#fff;margin:2px 2px 0 0}
 .dtl-att{display:flex;align-items:center;gap:8px;padding:8px 12px;
   background:var(--cream);border:1px solid var(--border);border-radius:var(--r-sm);
-  text-decoration:none;color:var(--text);font-size:var(--fs-sm)}
+  color:var(--text);font-size:var(--fs-sm);cursor:pointer;transition:border-color .15s}
 .dtl-att:hover{border-color:var(--rose)}
 .dtl-att-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap;font-weight:500}
 .dtl-att-sz{font-size:var(--fs-xs);color:var(--text-soft);flex-shrink:0}
+.dtl-att-prev{font-size:var(--fs-xs);color:var(--rose);font-weight:600;
+  flex-shrink:0;white-space:nowrap}
+
+/* ── FILE VIEWER ── */
+.viewer{position:fixed;inset:0;background:rgba(44,31,26,.55);display:none;
+  align-items:flex-end;justify-content:center;z-index:400;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+body.dark .viewer{background:rgba(0,0,0,.65)}
+.viewer.on{display:flex}
+@media(min-width:600px){.viewer{align-items:center}}
+.viewer-box{background:var(--warm-white);border-radius:22px 22px 0 0;
+  padding:18px 18px 24px;width:100%;max-width:640px;
+  max-height:92dvh;overflow-y:auto;box-shadow:0 -12px 48px rgba(44,31,26,.18)}
+body.dark .viewer-box{box-shadow:0 -12px 48px rgba(0,0,0,.5)}
+@media(min-width:600px){.viewer-box{border-radius:18px}}
+.viewer-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.viewer-title{flex:1;font-size:var(--fs-sm);font-weight:600;color:var(--text);
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.viewer-hdr-acts{display:flex;gap:8px;flex-shrink:0}
+.viewer-dl{text-decoration:none;font-size:var(--fs-xs) !important;padding:7px 12px !important}
+.viewer-close{font-size:var(--fs-sm) !important;padding:7px 12px !important}
+.viewer-content{width:100%;border-radius:8px;overflow:hidden;
+  background:var(--cream);min-height:200px;display:flex;align-items:center;justify-content:center}
+.viewer-err{padding:20px;text-align:center;font-size:var(--fs-sm);color:var(--text-mid)}
+.viewer-err a{color:var(--rose)}
+body.dark .viewer-title{color:var(--text)}
+body.dark .viewer-content{background:var(--cream)}
 .dtl-edit{width:100%;margin-top:18px;background:var(--rose);border:none;color:#fff;
   border-radius:var(--r-sm);padding:13px;font-size:var(--fs-sm);font-weight:600;
   cursor:pointer;box-shadow:0 4px 14px rgba(201,112,106,.28)}

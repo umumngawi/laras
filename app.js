@@ -559,7 +559,15 @@ function openDetail(id) {
   const atts=e.attachments ? tryParse(e.attachments) : [];
   if (atts.length) {
     G('dtl-att-sec').style.display='block';
-    G('dtl-att-list').innerHTML=atts.map(a=>`<a class="dtl-att" href="https://drive.google.com/file/d/${a.driveId}/view" target="_blank" rel="noopener"><span style="font-size:16px">${fIco(a.type||'')}</span><span class="dtl-att-name">${esc(a.name)}</span><span class="dtl-att-sz">${a.size?fmtSz(a.size):''}</span></a>`).join('');
+    G('dtl-att-list').innerHTML=atts.map(a=>{
+      const isImg = a.type&&(a.type.includes('image')||a.type.includes('jpg')||a.type.includes('jpeg')||a.type.includes('png'));
+      return `<div class="dtl-att" onclick="openViewer('${a.driveId}','${esc(a.name)}','${a.type||''}')">
+        <span style="font-size:16px">${fIco(a.type||'')}</span>
+        <span class="dtl-att-name">${esc(a.name)}</span>
+        <span class="dtl-att-sz">${a.size?fmtSz(a.size):''}</span>
+        <span class="dtl-att-prev">👁 Lihat</span>
+      </div>`;
+    }).join('');
   } else G('dtl-att-sec').style.display='none';
   if (mode==='loggedin' && (curRole==='owner'||curRole==='admin')) {
     G('dtl-edit').classList.remove('hidden');
@@ -568,6 +576,34 @@ function openDetail(id) {
   G('dtl').classList.add('on');
 }
 function closeDtl() { G('dtl').classList.remove('on'); }
+
+// ── FILE VIEWER ──
+function openViewer(driveId, name, type) {
+  const isImg = type&&(type.includes('image')||type.includes('jpg')||type.includes('jpeg')||type.includes('png')||type.includes('gif')||type.includes('webp'));
+  const isPdf = type&&type.includes('pdf');
+  const vbox = G('viewer-box');
+  G('viewer-title').textContent = name;
+
+  let content = '';
+  if (isImg) {
+    // Gambar: embed langsung
+    content = `<img src="https://drive.google.com/uc?export=view&id=${driveId}" style="max-width:100%;max-height:70vh;border-radius:8px;display:block;margin:0 auto" onerror="this.outerHTML='<div class=viewer-err>Gagal memuat gambar. <a href=\'https://drive.google.com/file/d/${driveId}/view\' target=\'_blank\'>Buka di Drive</a></div>'">`;
+  } else {
+    // PDF, DOC, XLSX: pakai Google Docs Viewer iframe
+    const url = isPdf
+      ? `https://drive.google.com/file/d/${driveId}/preview`
+      : `https://docs.google.com/viewer?srcid=${driveId}&pid=explorer&efh=false&a=v&chrome=false&embedded=true`;
+    content = `<iframe src="${url}" style="width:100%;height:70vh;border:none;border-radius:8px" allowfullscreen></iframe>`;
+  }
+
+  G('viewer-content').innerHTML = content;
+  G('viewer-dl').href = `https://drive.google.com/uc?export=download&id=${driveId}`;
+  G('viewer').classList.add('on');
+}
+function closeViewer() {
+  G('viewer').classList.remove('on');
+  G('viewer-content').innerHTML = '';
+}
 
 // ── DROPDOWN ──
 function buildDDList(listEl,srchEl,sel,onToggle) {
@@ -773,6 +809,9 @@ document.addEventListener('DOMContentLoaded',()=>{
       if (!refreshing) { refreshing = true; window.location.reload(); }
     });
   }
+
+  G('viewer-close').onclick = closeViewer;
+  G('viewer').onclick = e => { if (e.target===G('viewer')) closeViewer(); };
 
   initTheme();
   ['btn-theme-vo','btn-theme-app'].forEach(id => {

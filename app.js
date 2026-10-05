@@ -159,10 +159,19 @@ async function uploadFiles() {
       const b64 = await new Promise((res,rej) => {
         const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(pf.file);
       });
+      console.log('[LARAS] Uploading:', pf.name, pf.type, pf.size);
       const res = await gas({ action:'uploadFile', fileName:pf.name, mimeType:pf.type, base64:b64, folderId:FOLDER });
-      if (res.success) { pf.driveId=res.driveId; up.push({ name:pf.name, driveId:res.driveId, type:pf.type, size:pf.size }); }
-    } catch(e) { console.error(e); }
+      console.log('[LARAS] Upload response:', JSON.stringify(res));
+      if (res.success) {
+        pf.driveId=res.driveId;
+        up.push({ name:pf.name, driveId:res.driveId, type:pf.type, size:pf.size });
+      } else {
+        console.error('[LARAS] Upload gagal:', res.error||res.message||'unknown');
+        toast('Gagal unggah: ' + pf.name);
+      }
+    } catch(e) { console.error('[LARAS] Upload exception:', e); }
   }
+  console.log('[LARAS] uploadFiles result:', JSON.stringify(up));
   return up;
 }
 
@@ -674,6 +683,8 @@ async function saveEvent() {
   if (pendFiles.length) { showLdr('Mengunggah lampiran...'); attachments=await uploadFiles(); }
   hideLdr();
   const ev={id:editId||'EVT'+Date.now(),name,title,body:G('f-body').value.trim(),dateStart:ds,dateEnd:de,date:ds,timeStart:G('f-ts').value,timeEnd:G('f-te').value,colorIdx:colorFor(selStaf[0]),kehadiran:kh,catatan:kh!=='Hadir'?G('f-cat').value.trim():'',disposisi:kh!=='Hadir'?selDisp.join(SEP):'',attachments:JSON.stringify(attachments)};
+  console.log('[LARAS] Event to save:', JSON.stringify(ev));
+  console.log('[LARAS] attachments:', ev.attachments);
   closeModal();
   if (editId) { const i=events.findIndex(x=>x.id===editId); if(i>=0) events[i]=ev; }
   else events.push(ev);

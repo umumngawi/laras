@@ -3,7 +3,7 @@
    Frontend logic. Backend tetap di GAS.
 ───────────────────────────────────────────── */
 
-const GAS    = 'https://script.google.com/macros/s/AKfycbxruxLx-C3foXvpiqfPhblyk-93TqHfL7m0ZAG63ZCvgA5m0T8f5zNf7GeBJTGzUfJ7/exec';
+const GAS    = 'https://script.google.com/macros/s/AKfycbz8_dsugB74kGOh5jlBjnTDHr8dnyWK8ClJcYqv5s1_xC2c_NZNB9V2QxLTh76JOmyD/exec';
 const FOLDER = '1Mdu5NzYBl4-qox9AsMjjdmrYHAZiYcDu';
 const COLORS = ['#b5294e','#c9706a','#6b3fa0','#9b6dd4','#1e4fa0','#3a8fd4','#1a9080','#2a8c4a','#7a9e7e','#c48a10','#d4601a','#8c5230','#4a6080','#1090b0','#c030a0','#607060','#906030','#308090'];
 const BAGS   = ['umum','kesra','adbang','tapem','ekonomi','hukum','prokopim','organisasi','pbj'];

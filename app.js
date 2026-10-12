@@ -3,7 +3,7 @@
    Frontend logic. Backend tetap di GAS.
 ───────────────────────────────────────────── */
 
-const GAS    = 'https://script.google.com/macros/s/AKfycbzT3_NNlk05tSpwuEFY8e9q52ZArz2VOzM_cdRFdBUzpmRRbA0mXJEEe1uI-1mn2ZbX/exec';
+const GAS    = 'https://script.google.com/macros/s/AKfycbz8_dsugB74kGOh5jlBjnTDHr8dnyWK8ClJcYqv5s1_xC2c_NZNB9V2QxLTh76JOmyD/exec';
 const FOLDER = '1Mdu5NzYBl4-qox9AsMjjdmrYHAZiYcDu';
 const COLORS = ['#b5294e','#c9706a','#6b3fa0','#9b6dd4','#1e4fa0','#3a8fd4','#1a9080','#2a8c4a','#7a9e7e','#c48a10','#d4601a','#8c5230','#4a6080','#1090b0','#c030a0','#607060','#906030','#308090'];
 const BAGS   = ['umum','kesra','adbang','tapem','ekonomi','hukum','prokopim','organisasi','pbj'];
@@ -489,11 +489,13 @@ function renderKal(el) {
     const dnum=document.createElement('div'); dnum.className='cal-dnum'; dnum.textContent=num; cell.appendChild(dnum);
 
     (dayMap[ds]||[]).forEach(e=>{
-      const names=e.name.split(SEP).map(n=>n.trim()), fp=names[0], ci=colorFor(fp);
-      const ex=names.length>1?` +${names.length-1}`:'';
-      const dn=isMob&&fp.length>8?fp.substring(0,8)+'…':fp;
-      const ev=document.createElement('div'); ev.className='cal-ev'; ev.dataset.c=ci; ev.dataset.id=e.id; ev.title=fp; ev.textContent=dn+ex;
-      cell.appendChild(ev);
+      const names=e.name.split(SEP).map(n=>n.trim());
+      names.forEach(nm=>{
+        const ci=colorFor(nm);
+        const dn=isMob&&nm.length>8?nm.substring(0,8)+'…':nm;
+        const ev=document.createElement('div'); ev.className='cal-ev'; ev.dataset.c=ci; ev.dataset.id=e.id; ev.title=nm; ev.textContent=dn;
+        cell.appendChild(ev);
+      });
     });
     grid.appendChild(cell);
   }
